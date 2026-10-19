@@ -399,3 +399,148 @@ class TestMainAbort(unittest.TestCase):
 
             self.assertEqual(rc, 2)
             self.assertEqual((root / "trackers_best.txt").read_text(encoding="utf-8"), keep)
+
+
+class TestFixPass(unittest.TestCase):
+    def test_resolve_host_times_out_quickly(self):
+        import time
+        from unittest import mock
+
+        def slow_getaddrinfo(*args, **kwargs):
+            time.sleep(10)
+            return []
+
+        with mock.patch.object(ut.socket, "getaddrinfo", slow_getaddrinfo):
+            t0 = time.perf_counter()
+            result = ut.resolve_host("blackhole.example", timeout=0.5)
+        self.assertEqual(result, [])
+        self.assertLess(time.perf_counter() - t0, 2.0)
+
+    def test_dedupe_multi_ip_collapse(self):
+        domain = ut.parse_entry("udp://tracker.example.com:6969/announce", "best")
+        literal = ut.parse_entry("udp://9.9.9.9:6969/announce", "all_ip")
+        out = ut.dedupe([literal, domain], resolve=lambda h: ["8.8.8.8", "9.9.9.9"])
+        self.assertEqual([e.url for e in out], ["udp://tracker.example.com:6969/announce"])
+
+    def test_load_history_skips_malformed_rows(self):
+        import json
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            (root / "stats.json").write_text(
+                json.dumps(
+                    {
+                        "trackers": [
+                            {"no_url": True},
+                            "not-a-dict",
+                            {"url": "udp://good.example:80/announce", "score": 0.5},
+                        ]
+                    }
+                ),
+                encoding="utf-8",
+            )
+            history = ut.load_history(root)
+        self.assertEqual(set(history), {"udp://good.example:80/announce"})
+
+    def test_score_history_row_missing_score(self):
+        dead = ut.ProbeResult(url="u", ok=False, rtt_ms=None, success_rate=0.0, attempts=3, detail="")
+        self.assertEqual(ut.score(dead, {"u": {"in_best": True}}, 1, ut.Kind.NORMAL), 0.0)
+
+    def test_announce_query_encodes_slash(self):
+        q = ut._announce_query(b"a" + b"/" + b"b" * 18, b"-PM0001-" + b"x" * 12)
+        hash_value = dict(p.split("=", 1) for p in q.split("&"))["info_hash"]
+        self.assertNotIn("/", hash_value)
+        self.assertIn("%2F", hash_value)
+
+    def test_main_aborts_when_testable_source_missing(self):
+        import asyncio
+        import tempfile
+        from unittest import mock
+
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            src = root / "src"
+            src.mkdir()
+            (src / "all_ip.txt").write_text(
+                "\n".join(f"udp://1.1.1.{i}:80/announce" for i in range(1, 36)),
+                encoding="utf-8",
+            )
+
+            async def fake_probe_all(urls, rounds=3, concurrency=32):
+                return {
+                    u: ut.ProbeResult(url=u, ok=True, rtt_ms=50.0, success_rate=1.0, attempts=rounds, detail="ok")
+                    for u in urls
+                }
+
+            with mock.patch.object(ut, "probe_all", fake_probe_all), mock.patch.object(
+                ut, "resolve_host", lambda h: []
+            ):
+                rc = ut.main(["--source-dir", str(src), "--root", str(root)])
+
+            self.assertEqual(rc, 2)
+            self.assertFalse((root / "trackers_best.txt").exists())
+
+    def test_main_success_path_outputs(self):
+        import asyncio
+        import json
+        import tempfile
+        from unittest import mock
+
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            src = root / "src"
+            src.mkdir()
+            (src / "best.txt").write_text(
+                "\n".join(f"udp://1.1.1.{i}:80/announce" for i in range(1, 36)),
+                encoding="utf-8",
+            )
+            (src / "all_ip.txt").write_text("udp://1.1.1.1:80/announce\n")
+            (src / "i2p.txt").write_text("udp://tracker.x.i2p:80/announce\n")
+            (src / "yggdrasil.txt").write_text("udp://[200:1122::3]:80/announce\n")
+            (src / "yggdrasil_ip.txt").write_text("udp://[200:1122::4]:80/announce\n")
+            # corrupt history must not crash the run
+            (root / "stats.json").write_text(
+                json.dumps({"trackers": [{"no_url": True}]}), encoding="utf-8"
+            )
+            (root / "README.md").write_text(
+                "# T\n<!-- META:START -->\nx\n<!-- META:END -->\n"
+                "<!-- LEADERBOARD:START -->\nx\n<!-- LEADERBOARD:END -->\n",
+                encoding="utf-8",
+            )
+
+            async def fake_probe_all(urls, rounds=3, concurrency=32):
+                return {
+                    u: ut.ProbeResult(
+                        url=u, ok=True, rtt_ms=300.0 - 10.0 * int(u.split(".")[3].split(":")[0]),
+                        success_rate=1.0, attempts=rounds, detail="ok",
+                    )
+                    for u in urls
+                }
+
+            with mock.patch.object(ut, "probe_all", fake_probe_all), mock.patch.object(
+                ut, "resolve_host", lambda h: []
+            ):
+                rc = ut.main(["--source-dir", str(src), "--root", str(root)])
+
+            self.assertEqual(rc, 0)
+            best = (root / "trackers_best.txt").read_text(encoding="utf-8").splitlines()
+            self.assertEqual(len(best), 35)
+            self.assertEqual(best[0], "udp://1.1.1.35:80/announce")
+            self.assertEqual(
+                (root / "trackers_aria2.txt").read_text(encoding="utf-8").strip("\n"),
+                ",".join(best),
+            )
+            for name in [
+                "trackers_all.txt", "trackers_udp.txt", "trackers_http.txt",
+                "trackers_https.txt", "trackers_ip.txt", "trackers_i2p.txt",
+                "trackers_yggdrasil.txt", "trackers_aria2.txt", "stats.json",
+            ]:
+                self.assertTrue((root / name).exists(), name)
+            stats = json.loads((root / "stats.json").read_text(encoding="utf-8"))
+            self.assertEqual(stats["counts"], {"alive": 35, "selected": 35})
+            self.assertFalse(stats["udp_probes_blocked"])
+            self.assertEqual(stats["trackers"][0]["rank"], 1)
+            readme = (root / "README.md").read_text(encoding="utf-8")
+            self.assertIn("| 1 |", readme)
+            self.assertNotIn("\nx\n", readme)

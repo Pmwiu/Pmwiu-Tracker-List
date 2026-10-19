@@ -5,6 +5,7 @@ Stage 2 (network): BEP-3 / BEP-15 announce probes and multi-dim scoring.
 """
 
 import asyncio
+import concurrent.futures
 import hashlib
 import ipaddress
 import json
@@ -184,24 +185,47 @@ def is_blocked(entry: Entry, resolved: list[str], bl: Blacklist) -> bool:
 
 
 def dedupe(entries: list[Entry], resolve: Callable[[str], list[str]]) -> list[Entry]:
-    groups: dict[str, list[Entry]] = {}
-    order: list[str] = []
+    items: list[tuple[Entry, set[str]]] = []
     for e in entries:
         if _is_ip_literal(e.host):
-            ips = [e.host]
+            ips = {e.host}
         else:
             try:
-                ips = list(resolve(e.host) or [])
+                ips = set(resolve(e.host) or [])
             except Exception:
-                ips = []
-        key = f"ip:{sorted(ips)[0]}" if ips else f"host:{e.host}"
-        if key not in groups:
-            groups[key] = []
-            order.append(key)
-        groups[key].append(e)
+                ips = set()
+        items.append((e, ips))
+    parent = list(range(len(items)))
+
+    def find(x: int) -> int:
+        while parent[x] != x:
+            parent[x] = parent[parent[x]]
+            x = parent[x]
+        return x
+
+    def union(a: int, b: int) -> None:
+        ra, rb = find(a), find(b)
+        if ra != rb:
+            parent[max(ra, rb)] = min(ra, rb)
+
+    owner: dict[str, int] = {}
+    for idx, (e, ips) in enumerate(items):
+        for key in [f"ip:{ip}" for ip in ips] + [f"host:{e.host.lower()}"]:
+            if key in owner:
+                union(idx, owner[key])
+            else:
+                owner[key] = idx
+    grouped: dict[int, list[Entry]] = {}
+    order: list[int] = []
+    for idx, (e, _ips) in enumerate(items):
+        root = find(idx)
+        if root not in grouped:
+            grouped[root] = []
+            order.append(root)
+        grouped[root].append(e)
     out = []
-    for key in order:
-        members = groups[key]
+    for root in order:
+        members = grouped[root]
         keep = min(
             members,
             key=lambda e: (SCHEME_RANK.get(e.scheme, 99), 1 if e.kind == Kind.IP_LITERAL else 0, e.url),
@@ -311,16 +335,20 @@ async def probe_udp(url: str, timeout: float = 10.0) -> ProbeResult:
         )
 
 
+def _announce_query(info_hash: bytes, peer_id: bytes) -> str:
+    return "&".join([
+        "info_hash=" + urllib.parse.quote(info_hash, safe=""),
+        "peer_id=" + urllib.parse.quote(peer_id, safe=""),
+        "port=6881", "uploaded=0", "downloaded=0", "left=0",
+        "compact=1", "numwant=0",
+    ])
+
+
 def _http_announce(url: str, timeout: float) -> float:
     """One BEP-3 GET announce. Returns rtt_ms; raises on failure."""
     info_hash = hashlib.sha1(os.urandom(20)).digest()
     peer_id = b"-PM0001-" + os.urandom(12)
-    query = "&".join([
-        "info_hash=" + urllib.parse.quote(info_hash),
-        "peer_id=" + urllib.parse.quote(peer_id),
-        "port=6881", "uploaded=0", "downloaded=0", "left=0",
-        "compact=1", "numwant=0",
-    ])
+    query = _announce_query(info_hash, peer_id)
     sep = "&" if "?" in url else "?"
     full = url + sep + query
     req = urllib.request.Request(full, headers={"User-Agent": "Pmwiu-Tracker-List/1.0"})
@@ -380,7 +408,7 @@ async def probe_all(urls: list[str], rounds: int = 3, concurrency: int = 32) -> 
 def score(result: ProbeResult, history: dict | None, popularity: int, kind: Kind) -> float:
     hist = (history or {}).get(result.url)
     if not result.ok:
-        return hist["score"] * 0.9 if hist else 0.0
+        return float(hist.get("score", 0.0)) * 0.9 if hist else 0.0
     latency_score = 0.0 if result.rtt_ms is None else 1.0 / (1.0 + result.rtt_ms / 1000.0)
     stability = 1.0 if result.rtt_std_ms is None else 1.0 / (1.0 + result.rtt_std_ms / 100.0)
     pop_score = min(popularity / 2.0, 1.0)
@@ -451,7 +479,21 @@ def needs_commit(before: dict[str, str], after: dict[str, str]) -> bool:
     return before != after
 
 
-def resolve_host(host: str) -> list[str]:
+_RESOLVER = concurrent.futures.ThreadPoolExecutor(max_workers=32)
+
+
+def resolve_host(host: str, timeout: float = 5.0) -> list[str]:
+    fut = _RESOLVER.submit(_resolve_host_blocking, host)
+    try:
+        return fut.result(timeout=timeout)
+    except concurrent.futures.TimeoutError:
+        fut.cancel()
+        return []
+    except Exception:
+        return []
+
+
+def _resolve_host_blocking(host: str) -> list[str]:
     ips: list[str] = []
     for _family, _type, _proto, _canon, sockaddr in socket.getaddrinfo(host, None):
         ip = sockaddr[0]
@@ -478,7 +520,12 @@ def load_history(root: Path) -> dict:
         stats = json.loads(path.read_text(encoding="utf-8"))
     except Exception:
         return {}
-    return {t["url"]: t for t in stats.get("trackers", [])}
+    rows = stats.get("trackers", []) if isinstance(stats, dict) else []
+    out: dict = {}
+    for t in rows:
+        if isinstance(t, dict) and "url" in t:
+            out[t["url"]] = t
+    return out
 
 
 def _replace_marked(text: str, start: str, end: str, inner: str) -> str:
@@ -545,6 +592,10 @@ def main(argv: list[str] | None = None) -> int:
     if all(v is None for v in raw_texts.values()):
         print("error: all sources failed")
         return 1
+    for key in ("best", "all_ip"):
+        if raw_texts.get(key) is None:
+            print(f"abort: testable source '{key}' failed; keeping previous lists")
+            return 2
 
     entries: list[Entry] = []
     sources_meta: dict[str, dict] = {}
