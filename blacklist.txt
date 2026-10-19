@@ -1,0 +1,19 @@
+# Pmwiu Tracker List 黑名单 / Blacklist
+# 每行一条规则，# 开头为注释。支持四种写法：
+#   1) 精确主机名        tracker.example.com
+#   2) 后缀通配          *.example.com
+#   3) IP 或 CIDR        203.0.113.7  /  203.0.113.0/24
+#   4) 关键词（hostname 子串，不区分大小写）  keyword:casino
+# 命中任一规则的 Tracker 将在每次自动更新时被剔除。
+
+# —— 种子规则：低俗 / 赌博类关键词 ——
+keyword:casino
+keyword:gambling
+keyword:porn
+keyword:xxx
+
+# —— 示例（默认注释，需要时取消注释）——
+# tracker.example.com
+# *.badexample.com
+# 203.0.113.7
+# 203.0.113.0/24
