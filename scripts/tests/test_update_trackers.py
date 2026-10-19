@@ -151,3 +151,157 @@ class TestSources(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestProbes(unittest.TestCase):
+    def test_probe_udp_fails_fast_on_closed_port(self):
+        import asyncio
+        import time
+
+        t0 = time.perf_counter()
+        result = asyncio.run(ut.probe_udp("udp://127.0.0.1:1/announce", timeout=2.0))
+        elapsed = time.perf_counter() - t0
+        self.assertFalse(result.ok)
+        self.assertLess(elapsed, 5.0)
+
+    def test_probe_http_ok_with_local_server(self):
+        import asyncio
+        import http.server
+        import threading
+
+        body = b"d8:intervali1800e5:peers0:e"
+
+        class Handler(http.server.BaseHTTPRequestHandler):
+            def do_GET(self):
+                self.send_response(200)
+                self.end_headers()
+                self.wfile.write(body)
+
+            def log_message(self, *args):
+                pass
+
+        server = http.server.HTTPServer(("127.0.0.1", 0), Handler)
+        port = server.server_address[1]
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        try:
+            result = asyncio.run(ut.probe_http(f"http://127.0.0.1:{port}/announce", timeout=5.0))
+        finally:
+            server.shutdown()
+            server.server_close()
+        self.assertTrue(result.ok)
+        self.assertIsNotNone(result.rtt_ms)
+
+    def test_probe_http_failure_reason_is_not_alive(self):
+        import asyncio
+        import http.server
+        import threading
+
+        body = b"d14:failure reason12:not allowed!e"
+
+        class Handler(http.server.BaseHTTPRequestHandler):
+            def do_GET(self):
+                self.send_response(200)
+                self.end_headers()
+                self.wfile.write(body)
+
+            def log_message(self, *args):
+                pass
+
+        server = http.server.HTTPServer(("127.0.0.1", 0), Handler)
+        port = server.server_address[1]
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        try:
+            result = asyncio.run(ut.probe_http(f"http://127.0.0.1:{port}/announce", timeout=5.0))
+        finally:
+            server.shutdown()
+            server.server_close()
+        self.assertFalse(result.ok)
+
+    def test_probe_all_aggregates_rounds(self):
+        import asyncio
+        import http.server
+        import threading
+
+        body = b"d8:intervali1800e5:peers0:e"
+
+        class Handler(http.server.BaseHTTPRequestHandler):
+            def do_GET(self):
+                self.send_response(200)
+                self.end_headers()
+                self.wfile.write(body)
+
+            def log_message(self, *args):
+                pass
+
+        server = http.server.HTTPServer(("127.0.0.1", 0), Handler)
+        port = server.server_address[1]
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        try:
+            results = asyncio.run(
+                ut.probe_all([f"http://127.0.0.1:{port}/announce"], rounds=3, concurrency=4)
+            )
+        finally:
+            server.shutdown()
+            server.server_close()
+        (result,) = results.values()
+        self.assertEqual(result.attempts, 3)
+        self.assertEqual(result.success_rate, 1.0)
+        self.assertTrue(result.ok)
+
+
+class TestScore(unittest.TestCase):
+    def _probe(self, url="u", ok=True, rtt_ms=100.0, success_rate=1.0):
+        return ut.ProbeResult(
+            url=url, ok=ok, rtt_ms=rtt_ms, success_rate=success_rate, attempts=3, detail=""
+        )
+
+    def test_score_faster_ranks_higher(self):
+        fast = self._probe(rtt_ms=100.0)
+        slow = self._probe(rtt_ms=300.0)
+        self.assertGreater(
+            ut.score(fast, None, 1, ut.Kind.NORMAL),
+            ut.score(slow, None, 1, ut.Kind.NORMAL),
+        )
+
+    def test_score_falls_back_to_history_when_all_probes_fail(self):
+        dead = self._probe(ok=False, rtt_ms=None, success_rate=0.0)
+        history = {"u": {"score": 0.8, "rtt_ms": 100.0, "success_rate": 1.0, "in_best": True}}
+        self.assertAlmostEqual(ut.score(dead, history, 1, ut.Kind.NORMAL), 0.8 * 0.9)
+
+    def test_score_penalizes_ip_literal(self):
+        normal = self._probe()
+        literal = self._probe()
+        self.assertGreater(
+            ut.score(normal, None, 1, ut.Kind.NORMAL),
+            ut.score(literal, None, 1, ut.Kind.IP_LITERAL),
+        )
+
+    def test_apply_udp_history_fallback_when_udp_blocked(self):
+        history = {
+            "udp://t.example.com:80/announce": {
+                "score": 0.8,
+                "rtt_ms": 120.0,
+                "success_rate": 1.0,
+                "in_best": True,
+            }
+        }
+        results = {
+            "udp://t.example.com:80/announce": ut.ProbeResult(
+                url="udp://t.example.com:80/announce",
+                ok=False,
+                rtt_ms=None,
+                success_rate=0.0,
+                attempts=3,
+                detail="udp-fail",
+            ),
+            "http://h.example.com/announce": self._probe(url="http://h.example.com/announce"),
+        }
+        revived, udp_blocked = ut.apply_udp_history(results, history)
+        self.assertTrue(udp_blocked)
+        r = revived["udp://t.example.com:80/announce"]
+        self.assertTrue(r.ok)
+        self.assertEqual(r.rtt_ms, 120.0)
+        self.assertAlmostEqual(r.success_rate, 0.9)
