@@ -7,14 +7,17 @@ Stage 2 (network): BEP-3 / BEP-15 announce probes and multi-dim scoring.
 import asyncio
 import hashlib
 import ipaddress
+import json
 import os
 import socket
 import statistics
 import struct
+import sys
 import time
 import urllib.parse
 import urllib.request
 from dataclasses import dataclass, field, replace
+from datetime import datetime, timezone
 from enum import Enum
 from pathlib import Path
 from typing import Callable
@@ -415,3 +418,258 @@ def apply_udp_history(
                     attempts=out[u].attempts, detail="udp-blocked: carried from history",
                 )
     return out, True
+
+
+# ---------------------------------------------------------------------------
+# Stage 3: output writers, README auto-sections, main() orchestrator
+# ---------------------------------------------------------------------------
+
+FLOOR_ALIVE = 30
+BEST_N = 49
+MARK_META = ("<!-- META:START -->", "<!-- META:END -->")
+MARK_LEADERBOARD = ("<!-- LEADERBOARD:START -->", "<!-- LEADERBOARD:END -->")
+
+
+def select_best(scores: dict[str, float], n: int = 49) -> list[str]:
+    ranked = sorted(scores.items(), key=lambda kv: (-kv[1], kv[0]))
+    return [url for url, _ in ranked[:n]]
+
+
+def write_list(path: Path, urls: list[str]) -> None:
+    path.write_text("".join(u + "\n" for u in urls), encoding="utf-8")
+
+
+def write_aria2(path: Path, urls: list[str]) -> None:
+    path.write_text(",".join(urls) + ("\n" if urls else ""), encoding="utf-8")
+
+
+def write_stats(path: Path, stats: dict) -> None:
+    path.write_text(json.dumps(stats, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
+def needs_commit(before: dict[str, str], after: dict[str, str]) -> bool:
+    return before != after
+
+
+def resolve_host(host: str) -> list[str]:
+    ips: list[str] = []
+    for _family, _type, _proto, _canon, sockaddr in socket.getaddrinfo(host, None):
+        ip = sockaddr[0]
+        if ip not in ips:
+            ips.append(ip)
+    return ips
+
+
+def fetch_source(url: str, timeout: float = 30.0) -> str | None:
+    try:
+        req = urllib.request.Request(url, headers={"User-Agent": "Pmwiu-Tracker-List/1.0"})
+        opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+        with opener.open(req, timeout=timeout) as resp:
+            return resp.read(2_000_000).decode("utf-8", errors="replace")
+    except Exception:
+        return None
+
+
+def load_history(root: Path) -> dict:
+    path = root / "stats.json"
+    if not path.exists():
+        return {}
+    try:
+        stats = json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+    return {t["url"]: t for t in stats.get("trackers", [])}
+
+
+def _replace_marked(text: str, start: str, end: str, inner: str) -> str:
+    i = text.index(start) + len(start)
+    j = text.index(end)
+    return text[:i] + "\n" + inner.strip("\n") + "\n" + text[j:]
+
+
+def update_readme(text: str, rows: list[dict], meta: dict) -> str:
+    date = str(meta.get("updated", "")).replace("-", "--")
+    selected = meta.get("selected", 0)
+    meta_inner = (
+        f"![Last Update](https://img.shields.io/badge/更新-{date}-blue) "
+        f"![Trackers](https://img.shields.io/badge/Top_49-{selected}-brightgreen)"
+    )
+    lines = ["| 序号 | Tracker | 协议 | 中位延迟 (ms) | 成功率 | 综合分 |", "| ---: | --- | --- | ---: | ---: | ---: |"]
+    for row in rows:
+        median = "—" if row.get("median_ms") is None else f"{row['median_ms']:.1f}"
+        rate = f"{row.get('success_rate', 0.0) * 100:.0f}%"
+        lines.append(
+            f"| {row['rank']} | {row['url']} | {row['scheme'].upper()} | {median} | {rate} | {row['score']:.3f} |"
+        )
+    if not rows:
+        lines.append("| — | 暂无数据 | — | — | — | — |")
+    text = _replace_marked(text, *MARK_META, meta_inner)
+    text = _replace_marked(text, *MARK_LEADERBOARD, "\n".join(lines))
+    return text
+
+
+def _parse_args(argv: list[str] | None) -> tuple[str, str | None]:
+    argv = list(sys.argv[1:] if argv is None else argv)
+    root = "."
+    source_dir = None
+    i = 0
+    while i < len(argv):
+        if argv[i] == "--root" and i + 1 < len(argv):
+            root = argv[i + 1]
+            i += 2
+        elif argv[i] == "--source-dir" and i + 1 < len(argv):
+            source_dir = argv[i + 1]
+            i += 2
+        else:
+            i += 1
+    return root, source_dir
+
+
+def _pool_urls(pool: list[Entry]) -> list[str]:
+    return [e.url for e in sorted(pool, key=lambda e: (-len(e.sources), e.url))]
+
+
+def main(argv: list[str] | None = None) -> int:
+    root_s, source_dir = _parse_args(argv)
+    root = Path(root_s)
+    bl_path = root / "blacklist.txt"
+    bl = load_blacklist(bl_path) if bl_path.exists() else Blacklist(set(), set(), set(), set())
+
+    raw_texts: dict[str, str | None] = {}
+    for key, url in SOURCES.items():
+        if source_dir is not None:
+            p = Path(source_dir) / f"{key}.txt"
+            raw_texts[key] = p.read_text(encoding="utf-8") if p.exists() else None
+        else:
+            raw_texts[key] = fetch_source(url)
+    if all(v is None for v in raw_texts.values()):
+        print("error: all sources failed")
+        return 1
+
+    entries: list[Entry] = []
+    sources_meta: dict[str, dict] = {}
+    for key, text in raw_texts.items():
+        if text is None:
+            sources_meta[key] = {"ok": False, "count": 0}
+            continue
+        count = 0
+        for line in text.splitlines():
+            e = parse_entry(line.strip(), key)
+            if e is not None:
+                entries.append(e)
+                count += 1
+        sources_meta[key] = {"ok": True, "count": count}
+
+    resolved_cache: dict[str, list[str]] = {}
+
+    def resolve_cached(host: str) -> list[str]:
+        if host not in resolved_cache:
+            try:
+                resolved_cache[host] = resolve_host(host)
+            except Exception:
+                resolved_cache[host] = []
+        return resolved_cache[host]
+
+    kept: list[Entry] = []
+    for e in entries:
+        resolved = [e.host] if _is_ip_literal(e.host) else resolve_cached(e.host)
+        if not is_blocked(e, resolved, bl):
+            kept.append(e)
+
+    uniq = dedupe(kept, resolve=resolve_cached)
+
+    testable = [
+        e for e in uniq
+        if e.kind in (Kind.NORMAL, Kind.IP_LITERAL) and e.scheme in ("udp", "http", "https")
+    ]
+    ws_pool = [e for e in uniq if e.kind == Kind.WS]
+    i2p_pool = [e for e in uniq if e.kind == Kind.I2P]
+    ygg_pool = [e for e in uniq if e.kind == Kind.YGGDRASIL]
+
+    history = load_history(root)
+    results = asyncio.run(probe_all([e.url for e in testable]))
+    results, udp_blocked = apply_udp_history(results, history)
+
+    entry_by_url = {e.url: e for e in testable}
+    scores = {
+        u: score(results[u], history, len(entry_by_url[u].sources), entry_by_url[u].kind)
+        for u in results
+    }
+    alive_scores = {u: s for u, s in scores.items() if results[u].success_rate > 0}
+    alive_sorted = select_best(alive_scores, len(alive_scores))
+    if len(alive_sorted) < FLOOR_ALIVE:
+        print(
+            f"abort: alive trackers {len(alive_sorted)} < floor {FLOOR_ALIVE}; keeping previous lists"
+        )
+        return 2
+
+    best = select_best(alive_scores, BEST_N)
+    best_set = set(best)
+
+    write_list(root / "trackers_best.txt", best)
+    write_list(root / "trackers_all.txt", alive_sorted + _pool_urls(ws_pool))
+    write_list(root / "trackers_udp.txt", [u for u in alive_sorted if u.startswith("udp:")])
+    write_list(root / "trackers_http.txt", [u for u in alive_sorted if u.startswith("http:")])
+    write_list(root / "trackers_https.txt", [u for u in alive_sorted if u.startswith("https:")])
+    write_list(
+        root / "trackers_ip.txt",
+        [u for u in alive_sorted if entry_by_url[u].kind == Kind.IP_LITERAL],
+    )
+    write_list(root / "trackers_i2p.txt", _pool_urls(i2p_pool))
+    write_list(root / "trackers_yggdrasil.txt", _pool_urls(ygg_pool))
+    write_aria2(root / "trackers_aria2.txt", best)
+
+    generated_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    trackers_rows = []
+    for rank, u in enumerate(select_best(scores, len(scores)), 1):
+        r = results[u]
+        e = entry_by_url[u]
+        trackers_rows.append(
+            {
+                "url": u,
+                "scheme": e.scheme,
+                "kind": e.kind.value,
+                "median_ms": r.rtt_ms,
+                "success_rate": r.success_rate,
+                "score": scores[u],
+                "rank": rank,
+                "in_best": u in best_set,
+            }
+        )
+    stats = {
+        "generated_at": generated_at,
+        "sources": sources_meta,
+        "counts": {"alive": len(alive_sorted), "selected": len(best)},
+        "udp_probes_blocked": udp_blocked,
+        "trackers": trackers_rows,
+    }
+    write_stats(root / "stats.json", stats)
+
+    readme_path = root / "README.md"
+    if readme_path.exists():
+        rows = [
+            {
+                "rank": rank,
+                "url": u,
+                "scheme": entry_by_url[u].scheme,
+                "median_ms": results[u].rtt_ms,
+                "success_rate": results[u].success_rate,
+                "score": scores[u],
+            }
+            for rank, u in enumerate(best, 1)
+        ]
+        meta = {"updated": generated_at[:10], "selected": len(best)}
+        readme_path.write_text(
+            update_readme(readme_path.read_text(encoding="utf-8"), rows, meta),
+            encoding="utf-8",
+        )
+
+    print(
+        f"done: sources={ {k: v['count'] for k, v in sources_meta.items()} } "
+        f"alive={len(alive_sorted)} selected={len(best)} udp_blocked={udp_blocked}"
+    )
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

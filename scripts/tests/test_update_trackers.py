@@ -305,3 +305,97 @@ class TestScore(unittest.TestCase):
         self.assertTrue(r.ok)
         self.assertEqual(r.rtt_ms, 120.0)
         self.assertAlmostEqual(r.success_rate, 0.9)
+
+
+class TestOutputs(unittest.TestCase):
+    def test_select_best_orders_fast_first(self):
+        scores = {f"u{i:02d}": i / 50.0 for i in range(50)}
+        best = ut.select_best(scores, 49)
+        self.assertEqual(len(best), 49)
+        for a, b in zip(best, best[1:]):
+            self.assertGreater(scores[a], scores[b])
+
+    def test_select_best_fewer_than_n_alive(self):
+        scores = {f"u{i:02d}": i / 50.0 for i in range(40)}
+        best = ut.select_best(scores, 49)
+        self.assertEqual(len(best), 40)
+
+    def test_write_list_format(self):
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as td:
+            p = Path(td) / "out.txt"
+            ut.write_list(p, ["udp://a/announce", "udp://b/announce"])
+            self.assertEqual(p.read_text(encoding="utf-8"), "udp://a/announce\nudp://b/announce\n")
+            empty = Path(td) / "empty.txt"
+            ut.write_list(empty, [])
+            self.assertEqual(empty.read_text(encoding="utf-8"), "")
+
+    def test_needs_commit(self):
+        a = {"trackers_best.txt": "aaa", "stats.json": '{"generated_at": "t1"}'}
+        b = {"trackers_best.txt": "aaa", "stats.json": '{"generated_at": "t1"}'}
+        self.assertFalse(ut.needs_commit(a, b))
+        c = {"trackers_best.txt": "aaa", "stats.json": '{"generated_at": "t2"}'}
+        self.assertTrue(ut.needs_commit(a, c))
+
+
+class TestReadme(unittest.TestCase):
+    def test_update_readme_only_touches_markers(self):
+        text = (
+            "# 标题\n中文前文\n"
+            "<!-- META:START -->\n旧徽章\n<!-- META:END -->\n中间段\n"
+            "<!-- LEADERBOARD:START -->\n旧榜\n<!-- LEADERBOARD:END -->\n后文尾巴\n"
+        )
+        rows = [
+            {
+                "rank": 1,
+                "url": "udp://t.example.com:80/announce",
+                "scheme": "udp",
+                "median_ms": 12.5,
+                "success_rate": 1.0,
+                "score": 0.91,
+            }
+        ]
+        meta = {"updated": "2026-10-19", "selected": 49}
+        out = ut.update_readme(text, rows, meta)
+        self.assertTrue(out.startswith(text.split("<!-- META:START -->")[0]))
+        self.assertTrue(out.endswith(text.split("<!-- LEADERBOARD:END -->")[1]))
+        self.assertIn("中文前文", out)
+        self.assertIn("中间段", out)
+        self.assertNotIn("旧榜", out)
+        self.assertIn("udp://t.example.com:80/announce", out)
+        self.assertIn("2026--10--19", out)
+
+
+class TestMainAbort(unittest.TestCase):
+    def test_abort_when_alive_below_floor(self):
+        import asyncio
+        import tempfile
+        from unittest import mock
+
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            src = root / "src"
+            src.mkdir()
+            (src / "best.txt").write_text(
+                "\n".join(f"udp://t{i}.example.com:80/announce" for i in range(20)),
+                encoding="utf-8",
+            )
+            keep = "udp://keep.me:80/announce\n"
+            (root / "trackers_best.txt").write_text(keep, encoding="utf-8")
+
+            async def fake_probe_all(urls, rounds=3, concurrency=32):
+                return {
+                    u: ut.ProbeResult(
+                        url=u, ok=True, rtt_ms=50.0, success_rate=1.0, attempts=rounds, detail="ok"
+                    )
+                    for u in urls
+                }
+
+            with mock.patch.object(ut, "probe_all", fake_probe_all), mock.patch.object(
+                ut, "resolve_host", lambda h: []
+            ):
+                rc = ut.main(["--source-dir", str(src), "--root", str(root)])
+
+            self.assertEqual(rc, 2)
+            self.assertEqual((root / "trackers_best.txt").read_text(encoding="utf-8"), keep)
