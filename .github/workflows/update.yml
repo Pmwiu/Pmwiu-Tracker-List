@@ -1,0 +1,38 @@
+name: Update Trackers
+
+on:
+  schedule:
+    - cron: "23 2 * * *" # every 24h at 02:23 UTC (off the hour on purpose)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: tracker-update
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Run tests
+        run: python3 -m unittest discover -s scripts/tests -v
+
+      - name: Update tracker lists
+        run: python3 scripts/update_trackers.py
+
+      - name: Commit & push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "no changes"
+            exit 0
+          fi
+          git commit -m "chore: auto-update trackers $(date -u +%F)"
+          git pull --rebase origin HEAD
+          git push
