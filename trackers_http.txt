@@ -1,6 +1,5 @@
 http://tracker.renfei.net:8080/announce
+http://185.126.65.92:6969/announce
 http://216.144.239.90:6969/announce
 http://138.186.10.167:1337/announce
-http://185.126.65.92:6969/announce
-http://107.189.2.131:1337/announce
 http://140.235.237.23:6969/announce
