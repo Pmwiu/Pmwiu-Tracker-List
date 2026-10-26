@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-25T07:41:02+00:00",
+  "generated_at": "2026-10-26T07:55:58+00:00",
   "sources": {
     "best": {
       "ok": true,
@@ -15,7 +15,7 @@
     },
     "all_ip": {
       "ok": true,
-      "count": 30
+      "count": 53
     },
     "yggdrasil_ip": {
       "ok": true,
@@ -23,339 +23,469 @@
     }
   },
   "counts": {
-    "alive": 31,
-    "selected": 31
+    "alive": 45,
+    "selected": 45
   },
   "udp_probes_blocked": false,
   "trackers": [
     {
-      "url": "udp://tracker.bittor.pw:1337/announce",
-      "scheme": "udp",
-      "kind": "normal",
-      "median_ms": 29.210721999987754,
-      "success_rate": 1.0,
-      "score": 0.961085450564779,
-      "rank": 1,
-      "in_best": true
-    },
-    {
       "url": "udp://tracker.gmi.gd:6969/announce",
       "scheme": "udp",
       "kind": "normal",
-      "median_ms": 61.088331000007656,
+      "median_ms": 38.971332999992114,
       "success_rate": 1.0,
-      "score": 0.9489435921213198,
-      "rank": 2,
-      "in_best": true
-    },
-    {
-      "url": "udp://tracker.opentrackr.org:1337/announce",
-      "scheme": "udp",
-      "kind": "normal",
-      "median_ms": 87.47665999999299,
-      "success_rate": 1.0,
-      "score": 0.9383063826380459,
-      "rank": 3,
-      "in_best": true
-    },
-    {
-      "url": "udp://tracker.qu.ax:6969/announce",
-      "scheme": "udp",
-      "kind": "normal",
-      "median_ms": 87.67252600000575,
-      "success_rate": 1.0,
-      "score": 0.9379866368678814,
-      "rank": 4,
-      "in_best": true
-    },
-    {
-      "url": "udp://explodie.org:6969/announce",
-      "scheme": "udp",
-      "kind": "normal",
-      "median_ms": 111.35489099999063,
-      "success_rate": 1.0,
-      "score": 0.9136472680017063,
-      "rank": 5,
-      "in_best": true
-    },
-    {
-      "url": "http://tracker.renfei.net:8080/announce",
-      "scheme": "http",
-      "kind": "normal",
-      "median_ms": 25.61080899999979,
-      "success_rate": 1.0,
-      "score": 0.911831876944357,
-      "rank": 6,
+      "score": 0.9579463929623597,
+      "rank": 1,
       "in_best": true
     },
     {
       "url": "udp://open.demonii.com:1337/announce",
       "scheme": "udp",
       "kind": "normal",
-      "median_ms": 173.3904740000014,
+      "median_ms": 134.6963139999957,
       "success_rate": 1.0,
-      "score": 0.9082346643967438,
-      "rank": 7,
-      "in_best": true
-    },
-    {
-      "url": "udp://open.tracker.cl:1337/announce",
-      "scheme": "udp",
-      "kind": "normal",
-      "median_ms": 111.15604600000495,
-      "success_rate": 1.0,
-      "score": 0.9038902296058249,
-      "rank": 8,
-      "in_best": true
-    },
-    {
-      "url": "udp://exodus.desync.com:6969/announce",
-      "scheme": "udp",
-      "kind": "normal",
-      "median_ms": 72.86060100000213,
-      "success_rate": 1.0,
-      "score": 0.8925905849382783,
-      "rank": 9,
-      "in_best": true
-    },
-    {
-      "url": "udp://tracker-udp.gbitt.info:80/announce",
-      "scheme": "udp",
-      "kind": "normal",
-      "median_ms": 87.36921499999539,
-      "success_rate": 1.0,
-      "score": 0.8881735417960529,
-      "rank": 10,
-      "in_best": true
-    },
-    {
-      "url": "udp://tracker.ducks.party:1984/announce",
-      "scheme": "udp",
-      "kind": "normal",
-      "median_ms": 90.91702199999929,
-      "success_rate": 1.0,
-      "score": 0.8873947136564788,
-      "rank": 11,
+      "score": 0.9214436326166826,
+      "rank": 2,
       "in_best": true
     },
     {
       "url": "udp://tracker.nyaa.vc:6969/announce",
       "scheme": "udp",
       "kind": "normal",
-      "median_ms": 94.51968600001237,
+      "median_ms": 137.10558999999023,
       "success_rate": 1.0,
-      "score": 0.883191949811149,
-      "rank": 12,
+      "score": 0.9179703997033863,
+      "rank": 3,
+      "in_best": true
+    },
+    {
+      "url": "udp://tracker.opentrackr.org:1337/announce",
+      "scheme": "udp",
+      "kind": "normal",
+      "median_ms": 138.52552599999512,
+      "success_rate": 1.0,
+      "score": 0.9170103853852726,
+      "rank": 4,
       "in_best": true
     },
     {
       "url": "udp://open.stealth.si:80/announce",
       "scheme": "udp",
       "kind": "normal",
-      "median_ms": 103.60534299999813,
+      "median_ms": 148.52581399999565,
       "success_rate": 1.0,
-      "score": 0.8792380507230968,
-      "rank": 13,
+      "score": 0.9167557605034244,
+      "rank": 5,
+      "in_best": true
+    },
+    {
+      "url": "udp://tracker.ducks.party:1984/announce",
+      "scheme": "udp",
+      "kind": "normal",
+      "median_ms": 150.10891999999387,
+      "success_rate": 1.0,
+      "score": 0.9153508322009237,
+      "rank": 6,
+      "in_best": true
+    },
+    {
+      "url": "udp://tracker-udp.gbitt.info:80/announce",
+      "scheme": "udp",
+      "kind": "normal",
+      "median_ms": 139.02230800000837,
+      "success_rate": 1.0,
+      "score": 0.9147662598738432,
+      "rank": 7,
+      "in_best": true
+    },
+    {
+      "url": "udp://tracker.qu.ax:6969/announce",
+      "scheme": "udp",
+      "kind": "normal",
+      "median_ms": 151.42338699999414,
+      "success_rate": 1.0,
+      "score": 0.9122420817751075,
+      "rank": 8,
+      "in_best": true
+    },
+    {
+      "url": "udp://open.tracker.cl:1337/announce",
+      "scheme": "udp",
+      "kind": "normal",
+      "median_ms": 158.2016010000018,
+      "success_rate": 1.0,
+      "score": 0.9122350006975344,
+      "rank": 9,
       "in_best": true
     },
     {
       "url": "udp://tracker.peerfect.org:6969/announce",
       "scheme": "udp",
       "kind": "normal",
-      "median_ms": 119.65465500000505,
+      "median_ms": 168.1006280000048,
       "success_rate": 1.0,
-      "score": 0.8504312919559087,
+      "score": 0.9095671431119202,
+      "rank": 10,
+      "in_best": true
+    },
+    {
+      "url": "udp://tracker2.dler.org:80/announce",
+      "scheme": "udp",
+      "kind": "normal",
+      "median_ms": 130.9392620000125,
+      "success_rate": 1.0,
+      "score": 0.8976972890114037,
+      "rank": 11,
+      "in_best": true
+    },
+    {
+      "url": "udp://tracker.ilibr.org:6969/announce",
+      "scheme": "udp",
+      "kind": "normal",
+      "median_ms": 170.82197899999585,
+      "success_rate": 1.0,
+      "score": 0.8825674675322559,
+      "rank": 12,
+      "in_best": true
+    },
+    {
+      "url": "udp://tracker.opentrackr.com:6969/announce",
+      "scheme": "udp",
+      "kind": "normal",
+      "median_ms": 172.89749799999754,
+      "success_rate": 1.0,
+      "score": 0.8819167242525606,
+      "rank": 13,
+      "in_best": true
+    },
+    {
+      "url": "udp://tracker.corpscorp.online:80/announce",
+      "scheme": "udp",
+      "kind": "normal",
+      "median_ms": 49.7328299999964,
+      "success_rate": 1.0,
+      "score": 0.8777012488787095,
       "rank": 14,
       "in_best": true
     },
     {
-      "url": "udp://178.239.19.29:80/announce",
-      "scheme": "udp",
-      "kind": "ip_literal",
-      "median_ms": 89.78957300000445,
+      "url": "http://tracker.renfei.net:8080/announce",
+      "scheme": "http",
+      "kind": "normal",
+      "median_ms": 132.27679700000294,
       "success_rate": 1.0,
-      "score": 0.8431939135172788,
+      "score": 0.8708620814216579,
       "rank": 15,
       "in_best": true
     },
     {
-      "url": "udp://193.187.90.12:6969/announce",
+      "url": "udp://180.131.145.175:6969/announce",
       "scheme": "udp",
       "kind": "ip_literal",
-      "median_ms": 104.48509199999023,
+      "median_ms": 8.625485000010258,
       "success_rate": 1.0,
-      "score": 0.8361625101023551,
+      "score": 0.8506164012290834,
       "rank": 16,
-      "in_best": true
-    },
-    {
-      "url": "http://140.235.237.23:6969/announce",
-      "scheme": "http",
-      "kind": "ip_literal",
-      "median_ms": 53.06895200000383,
-      "success_rate": 1.0,
-      "score": 0.8346603199782338,
-      "rank": 17,
-      "in_best": true
-    },
-    {
-      "url": "udp://211.75.205.187:80/announce",
-      "scheme": "udp",
-      "kind": "ip_literal",
-      "median_ms": 196.45214699998803,
-      "success_rate": 1.0,
-      "score": 0.8321486748959306,
-      "rank": 18,
-      "in_best": true
-    },
-    {
-      "url": "udp://212.42.38.197:6969/announce",
-      "scheme": "udp",
-      "kind": "ip_literal",
-      "median_ms": 126.90417399998921,
-      "success_rate": 1.0,
-      "score": 0.8303635904660435,
-      "rank": 19,
-      "in_best": true
-    },
-    {
-      "url": "udp://45.38.170.167:6969/announce",
-      "scheme": "udp",
-      "kind": "ip_literal",
-      "median_ms": 110.12879999999825,
-      "success_rate": 1.0,
-      "score": 0.812210783701658,
-      "rank": 20,
-      "in_best": true
-    },
-    {
-      "url": "http://185.126.65.92:6969/announce",
-      "scheme": "http",
-      "kind": "ip_literal",
-      "median_ms": 178.77769199999705,
-      "success_rate": 1.0,
-      "score": 0.8120248008293557,
-      "rank": 21,
-      "in_best": true
-    },
-    {
-      "url": "udp://160.30.240.158:1337/announce",
-      "scheme": "udp",
-      "kind": "ip_literal",
-      "median_ms": 185.20316600000797,
-      "success_rate": 1.0,
-      "score": 0.8117116869210359,
-      "rank": 22,
-      "in_best": true
-    },
-    {
-      "url": "udp://47.76.201.250:6969/announce",
-      "scheme": "udp",
-      "kind": "ip_literal",
-      "median_ms": 199.57551799998896,
-      "success_rate": 1.0,
-      "score": 0.8073377052233386,
-      "rank": 23,
-      "in_best": true
-    },
-    {
-      "url": "udp://31.59.141.120:6969/announce",
-      "scheme": "udp",
-      "kind": "ip_literal",
-      "median_ms": 132.17719600000066,
-      "success_rate": 1.0,
-      "score": 0.8058895714740582,
-      "rank": 24,
-      "in_best": true
-    },
-    {
-      "url": "udp://15.235.207.99:8081/announce",
-      "scheme": "udp",
-      "kind": "ip_literal",
-      "median_ms": 222.3792220000007,
-      "success_rate": 1.0,
-      "score": 0.799553279008909,
-      "rank": 25,
       "in_best": true
     },
     {
       "url": "http://216.144.239.90:6969/announce",
       "scheme": "http",
       "kind": "ip_literal",
-      "median_ms": 178.5887730000013,
+      "median_ms": 71.61689599999477,
       "success_rate": 1.0,
-      "score": 0.7929007520023134,
+      "score": 0.8492775086227886,
+      "rank": 17,
+      "in_best": true
+    },
+    {
+      "url": "udp://149.106.106.25:443/announce",
+      "scheme": "udp",
+      "kind": "ip_literal",
+      "median_ms": 26.98121400000275,
+      "success_rate": 1.0,
+      "score": 0.8430969740336364,
+      "rank": 18,
+      "in_best": true
+    },
+    {
+      "url": "udp://23.94.174.203:1337/announce",
+      "scheme": "udp",
+      "kind": "ip_literal",
+      "median_ms": 29.48507099999631,
+      "success_rate": 1.0,
+      "score": 0.8427279206704974,
+      "rank": 19,
+      "in_best": true
+    },
+    {
+      "url": "udp://tracker.torrent.eu.org:451/announce",
+      "scheme": "udp",
+      "kind": "normal",
+      "median_ms": 150.76050499999383,
+      "success_rate": 1.0,
+      "score": 0.8400718311246532,
+      "rank": 20,
+      "in_best": true
+    },
+    {
+      "url": "udp://164.152.110.70:6969/announce",
+      "scheme": "udp",
+      "kind": "ip_literal",
+      "median_ms": 45.755431000003455,
+      "success_rate": 1.0,
+      "score": 0.8361987845418701,
+      "rank": 21,
+      "in_best": true
+    },
+    {
+      "url": "udp://192.99.100.68:6969/announce",
+      "scheme": "udp",
+      "kind": "ip_literal",
+      "median_ms": 65.11048699999833,
+      "success_rate": 1.0,
+      "score": 0.8287323245604059,
+      "rank": 22,
+      "in_best": true
+    },
+    {
+      "url": "udp://51.222.82.36:6969/announce",
+      "scheme": "udp",
+      "kind": "ip_literal",
+      "median_ms": 65.9449310000042,
+      "success_rate": 1.0,
+      "score": 0.8281343157231382,
+      "rank": 23,
+      "in_best": true
+    },
+    {
+      "url": "udp://74.119.149.136:6969/announce",
+      "scheme": "udp",
+      "kind": "ip_literal",
+      "median_ms": 65.13490700000091,
+      "success_rate": 1.0,
+      "score": 0.8267899121858032,
+      "rank": 24,
+      "in_best": true
+    },
+    {
+      "url": "udp://47.76.201.250:6969/announce",
+      "scheme": "udp",
+      "kind": "ip_literal",
+      "median_ms": 138.83481500000983,
+      "success_rate": 1.0,
+      "score": 0.826466558115958,
+      "rank": 25,
+      "in_best": true
+    },
+    {
+      "url": "udp://160.30.240.158:1337/announce",
+      "scheme": "udp",
+      "kind": "ip_literal",
+      "median_ms": 147.45571199999574,
+      "success_rate": 1.0,
+      "score": 0.823518753090441,
       "rank": 26,
       "in_best": true
     },
     {
-      "url": "http://94.23.207.177:6969/announce",
-      "scheme": "http",
+      "url": "udp://178.239.19.29:80/announce",
+      "scheme": "udp",
       "kind": "ip_literal",
-      "median_ms": 177.4656919999984,
+      "median_ms": 140.8989039999966,
       "success_rate": 1.0,
-      "score": 0.7895592554505314,
+      "score": 0.8235137891385726,
       "rank": 27,
       "in_best": true
     },
     {
-      "url": "udp://60.172.236.18:6969/announce",
+      "url": "udp://15.235.207.99:8081/announce",
       "scheme": "udp",
       "kind": "ip_literal",
-      "median_ms": 262.98181100000306,
+      "median_ms": 160.76377699999966,
       "success_rate": 1.0,
-      "score": 0.7837221110384223,
+      "score": 0.8193352740251343,
       "rank": 28,
       "in_best": true
     },
     {
-      "url": "http://107.189.2.131:1337/announce",
-      "scheme": "http",
+      "url": "udp://193.187.90.12:6969/announce",
+      "scheme": "udp",
       "kind": "ip_literal",
-      "median_ms": 195.7436330000064,
+      "median_ms": 163.66678500000376,
       "success_rate": 1.0,
-      "score": 0.7788854258351204,
+      "score": 0.8146020638745947,
       "rank": 29,
+      "in_best": true
+    },
+    {
+      "url": "udp://45.38.170.167:6969/announce",
+      "scheme": "udp",
+      "kind": "ip_literal",
+      "median_ms": 162.58317599999828,
+      "success_rate": 1.0,
+      "score": 0.8137748776113168,
+      "rank": 30,
+      "in_best": true
+    },
+    {
+      "url": "udp://31.59.141.120:6969/announce",
+      "scheme": "udp",
+      "kind": "ip_literal",
+      "median_ms": 181.4555079999991,
+      "success_rate": 1.0,
+      "score": 0.8123384999819256,
+      "rank": 31,
       "in_best": true
     },
     {
       "url": "udp://tracker.tryhackx.org:6969/announce",
       "scheme": "udp",
       "kind": "normal",
-      "median_ms": 108.67964949999731,
+      "median_ms": 158.05027350000245,
       "success_rate": 0.6666666666666666,
-      "score": 0.7729703674936197,
-      "rank": 30,
+      "score": 0.8110259857218747,
+      "rank": 32,
       "in_best": true
     },
     {
-      "url": "udp://74.81.245.60:2010/announce",
+      "url": "udp://212.42.38.197:6969/announce",
       "scheme": "udp",
       "kind": "ip_literal",
-      "median_ms": null,
-      "success_rate": 0.0,
-      "score": 0.7292253216379441,
-      "rank": 31,
-      "in_best": false
+      "median_ms": 188.840134000003,
+      "success_rate": 1.0,
+      "score": 0.8083783298800764,
+      "rank": 33,
+      "in_best": true
+    },
+    {
+      "url": "udp://94.23.207.177:6969/announce",
+      "scheme": "udp",
+      "kind": "ip_literal",
+      "median_ms": 144.29690100000414,
+      "success_rate": 1.0,
+      "score": 0.7990094355542116,
+      "rank": 34,
+      "in_best": true
+    },
+    {
+      "url": "udp://52.58.128.163:6969/announce",
+      "scheme": "udp",
+      "kind": "ip_literal",
+      "median_ms": 147.45822500000827,
+      "success_rate": 1.0,
+      "score": 0.7980024261164805,
+      "rank": 35,
+      "in_best": true
+    },
+    {
+      "url": "udp://185.216.179.62:25/announce",
+      "scheme": "udp",
+      "kind": "ip_literal",
+      "median_ms": 145.46473899999057,
+      "success_rate": 1.0,
+      "score": 0.7977641734166325,
+      "rank": 36,
+      "in_best": true
+    },
+    {
+      "url": "udp://89.234.156.205:451/announce",
+      "scheme": "udp",
+      "kind": "ip_literal",
+      "median_ms": 152.18551300000627,
+      "success_rate": 1.0,
+      "score": 0.7958844768531916,
+      "rank": 37,
+      "in_best": true
+    },
+    {
+      "url": "udp://31.56.179.159:6969/announce",
+      "scheme": "udp",
+      "kind": "ip_literal",
+      "median_ms": 160.92998800000657,
+      "success_rate": 1.0,
+      "score": 0.7902955108310149,
+      "rank": 38,
+      "in_best": true
+    },
+    {
+      "url": "udp://65.109.28.33:6969/announce",
+      "scheme": "udp",
+      "kind": "ip_literal",
+      "median_ms": 176.44195399999774,
+      "success_rate": 1.0,
+      "score": 0.7892408979698469,
+      "rank": 39,
+      "in_best": true
+    },
+    {
+      "url": "udp://177.16.198.108:6969/announce",
+      "scheme": "udp",
+      "kind": "ip_literal",
+      "median_ms": 175.20979399999703,
+      "success_rate": 1.0,
+      "score": 0.788619841681656,
+      "rank": 40,
+      "in_best": true
+    },
+    {
+      "url": "udp://83.102.180.21:80/announce",
+      "scheme": "udp",
+      "kind": "ip_literal",
+      "median_ms": 185.59208500001034,
+      "success_rate": 1.0,
+      "score": 0.7858288023025545,
+      "rank": 41,
+      "in_best": true
+    },
+    {
+      "url": "http://185.126.65.92:6969/announce",
+      "scheme": "http",
+      "kind": "ip_literal",
+      "median_ms": 295.7547249999948,
+      "success_rate": 1.0,
+      "score": 0.776166141691407,
+      "rank": 42,
+      "in_best": true
+    },
+    {
+      "url": "udp://107.189.2.131:1337/announce",
+      "scheme": "udp",
+      "kind": "ip_literal",
+      "median_ms": 260.31487899999206,
+      "success_rate": 1.0,
+      "score": 0.7660457648773366,
+      "rank": 43,
+      "in_best": true
     },
     {
       "url": "udp://52.211.139.85:27022/announce",
       "scheme": "udp",
       "kind": "ip_literal",
-      "median_ms": 70.95620199999075,
+      "median_ms": 131.8544580000065,
       "success_rate": 0.3333333333333333,
-      "score": 0.6604259879644487,
-      "rank": 32,
+      "score": 0.6389487376587225,
+      "rank": 44,
       "in_best": true
     },
     {
-      "url": "http://177.172.67.177:6969/announce",
+      "url": "http://140.235.237.23:6969/announce",
       "scheme": "http",
+      "kind": "ip_literal",
+      "median_ms": 1486.0903969999981,
+      "success_rate": 1.0,
+      "score": 0.6004123687252096,
+      "rank": 45,
+      "in_best": true
+    },
+    {
+      "url": "udp://38.180.157.12:2715/announce",
+      "scheme": "udp",
       "kind": "ip_literal",
       "median_ms": null,
       "success_rate": 0.0,
       "score": 0.0,
-      "rank": 33,
+      "rank": 46,
       "in_best": false
     }
   ]
