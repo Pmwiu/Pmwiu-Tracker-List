@@ -1,7 +1,7 @@
 # Pmwiu Tracker List
 
 <!-- META:START -->
-![Last Update](https://img.shields.io/badge/更新-2026--11--02-blue) ![Trackers](https://img.shields.io/badge/Top_49-44-brightgreen)
+![Last Update](https://img.shields.io/badge/更新-2026--11--03-blue) ![Trackers](https://img.shields.io/badge/Top_49-45-brightgreen)
 <!-- META:END -->
 
 > 每 24 小时自动更新的 **Top 49** 公共 BitTorrent Tracker 列表 · 真实 announce 测速 · 速度快在前，速度慢在后 · 自动去重 / 去失效 / 去黑名单
@@ -37,50 +37,51 @@ https://cdn.statically.io/gh/Pmwiu/Pmwiu-Tracker-List/main/trackers_best.txt
 <!-- LEADERBOARD:START -->
 | 序号 | Tracker | 协议 | 中位延迟 (ms) | 成功率 | 综合分 |
 | ---: | --- | --- | ---: | ---: | ---: |
-| 1 | udp://tracker.gmi.gd:6969/announce | UDP | 8.0 | 100% | 0.969 |
-| 2 | udp://tracker.qu.ax:6969/announce | UDP | 129.9 | 100% | 0.923 |
-| 3 | udp://tracker.opentrackr.org:1337/announce | UDP | 131.0 | 100% | 0.923 |
-| 4 | udp://tracker-udp.gbitt.info:80/announce | UDP | 130.4 | 100% | 0.923 |
-| 5 | udp://tracker.ducks.party:1984/announce | UDP | 144.4 | 100% | 0.918 |
-| 6 | udp://tracker.nyaa.vc:6969/announce | UDP | 144.9 | 100% | 0.917 |
-| 7 | udp://open.demonii.com:1337/announce | UDP | 130.1 | 100% | 0.915 |
-| 8 | udp://retracker01-msk-virt.corbina.net:80/announce | UDP | 169.9 | 100% | 0.909 |
-| 9 | udp://open.stealth.si:80/announce | UDP | 154.2 | 100% | 0.909 |
-| 10 | udp://tracker2.dler.org:80/announce | UDP | 149.3 | 100% | 0.887 |
-| 11 | udp://tracker.farted.net:6969/announce | UDP | 153.6 | 100% | 0.887 |
-| 12 | udp://tracker.bittor.pw:1337/announce | UDP | 52.3 | 100% | 0.876 |
-| 13 | udp://23.94.174.203:1337/announce | UDP | 8.2 | 100% | 0.875 |
-| 14 | udp://180.131.145.175:6969/announce | UDP | 29.7 | 100% | 0.866 |
-| 15 | http://216.144.239.90:6969/announce | HTTP | 31.7 | 100% | 0.864 |
-| 16 | udp://149.106.106.25:443/announce | UDP | 35.2 | 100% | 0.863 |
-| 17 | udp://74.119.149.136:6969/announce | UDP | 49.0 | 100% | 0.859 |
-| 18 | udp://open.tracker.cl:1337/announce | UDP | 235.9 | 100% | 0.858 |
-| 19 | udp://164.152.110.70:6969/announce | UDP | 54.7 | 100% | 0.857 |
-| 20 | udp://192.99.100.68:6969/announce | UDP | 69.8 | 100% | 0.851 |
-| 21 | udp://51.222.82.36:6969/announce | UDP | 70.9 | 100% | 0.850 |
-| 22 | udp://explodie.org:6969/announce | UDP | 59.6 | 67% | 0.849 |
-| 23 | http://tracker.renfei.net:8080/announce | HTTP | 187.8 | 100% | 0.846 |
-| 24 | udp://178.239.19.29:80/announce | UDP | 133.1 | 100% | 0.828 |
-| 25 | udp://185.216.179.62:25/announce | UDP | 135.6 | 100% | 0.828 |
-| 26 | udp://221.153.216.56:8081/announce | UDP | 134.6 | 100% | 0.827 |
-| 27 | udp://103.27.158.117:1914/announce | UDP | 135.0 | 100% | 0.826 |
-| 28 | udp://94.23.207.177:6969/announce | UDP | 142.3 | 100% | 0.825 |
-| 29 | udp://160.30.240.158:1337/announce | UDP | 147.5 | 100% | 0.823 |
-| 30 | udp://47.76.201.250:6969/announce | UDP | 152.3 | 100% | 0.822 |
-| 31 | udp://45.38.170.167:6969/announce | UDP | 153.4 | 100% | 0.822 |
-| 32 | udp://31.59.141.120:6969/announce | UDP | 178.6 | 100% | 0.814 |
-| 33 | udp://15.235.207.99:8081/announce | UDP | 178.1 | 100% | 0.813 |
-| 34 | udp://212.42.38.197:6969/announce | UDP | 169.5 | 100% | 0.812 |
-| 35 | udp://89.234.156.205:451/announce | UDP | 134.0 | 100% | 0.804 |
-| 36 | udp://60.172.236.18:6969/announce | UDP | 208.5 | 100% | 0.804 |
-| 37 | udp://tracker.tryhackx.org:6969/announce | UDP | 168.8 | 67% | 0.801 |
-| 38 | http://185.126.65.92:6969/announce | HTTP | 262.4 | 100% | 0.789 |
-| 39 | udp://65.109.28.33:6969/announce | UDP | 200.4 | 100% | 0.781 |
-| 40 | udp://95.217.80.20:6969/announce | UDP | 191.6 | 100% | 0.781 |
-| 41 | udp://143.20.154.228:42069/announce | UDP | 270.6 | 100% | 0.763 |
-| 42 | udp://tracker.flatuslifir.is:6969/announce | UDP | 142.4 | 33% | 0.694 |
-| 43 | http://140.235.237.23:6969/announce | HTTP | 899.0 | 100% | 0.663 |
-| 44 | udp://143.20.154.229:42069/announce | UDP | 5493.9 | 100% | 0.465 |
+| 1 | udp://tracker.gmi.gd:6969/announce | UDP | 17.0 | 100% | 0.966 |
+| 2 | udp://explodie.org:6969/announce | UDP | 34.5 | 100% | 0.960 |
+| 3 | udp://tracker.corpscorp.online:80/announce | UDP | 48.1 | 100% | 0.929 |
+| 4 | udp://tracker2.dler.org:80/announce | UDP | 138.7 | 100% | 0.920 |
+| 5 | udp://tracker.nyaa.vc:6969/announce | UDP | 142.3 | 100% | 0.915 |
+| 6 | udp://open.stealth.si:80/announce | UDP | 151.7 | 100% | 0.915 |
+| 7 | udp://tracker.qu.ax:6969/announce | UDP | 141.3 | 100% | 0.915 |
+| 8 | udp://tracker.ducks.party:1984/announce | UDP | 153.7 | 100% | 0.914 |
+| 9 | udp://tracker-udp.gbitt.info:80/announce | UDP | 143.4 | 100% | 0.914 |
+| 10 | udp://tracker.farted.net:6969/announce | UDP | 163.5 | 100% | 0.911 |
+| 11 | udp://open.demonii.com:1337/announce | UDP | 152.1 | 100% | 0.909 |
+| 12 | udp://retracker01-msk-virt.corbina.net:80/announce | UDP | 180.2 | 100% | 0.905 |
+| 13 | udp://tracker.theoks.net:6969/announce | UDP | 17.1 | 100% | 0.891 |
+| 14 | udp://t.overflow.biz:6969/announce | UDP | 171.4 | 100% | 0.884 |
+| 15 | udp://23.94.174.203:1337/announce | UDP | 8.9 | 100% | 0.875 |
+| 16 | udp://180.131.145.175:6969/announce | UDP | 16.0 | 100% | 0.871 |
+| 17 | http://216.144.239.90:6969/announce | HTTP | 19.0 | 100% | 0.871 |
+| 18 | udp://149.106.106.25:443/announce | UDP | 27.5 | 100% | 0.867 |
+| 19 | http://tracker.renfei.net:8080/announce | HTTP | 157.3 | 100% | 0.858 |
+| 20 | udp://164.152.110.70:6969/announce | UDP | 46.6 | 100% | 0.858 |
+| 21 | udp://192.99.100.68:6969/announce | UDP | 67.1 | 100% | 0.851 |
+| 22 | udp://74.119.149.136:6969/announce | UDP | 69.0 | 100% | 0.851 |
+| 23 | udp://51.222.82.36:6969/announce | UDP | 68.1 | 100% | 0.850 |
+| 24 | udp://tracker.tryhackx.org:6969/announce | UDP | 193.9 | 100% | 0.847 |
+| 25 | udp://open.tracker.cl:1337/announce | UDP | 277.0 | 100% | 0.839 |
+| 26 | udp://tracker.torrent.eu.org:451/announce | UDP | 155.5 | 100% | 0.835 |
+| 27 | udp://47.76.201.250:6969/announce | UDP | 145.4 | 100% | 0.824 |
+| 28 | udp://94.23.207.177:6969/announce | UDP | 144.3 | 100% | 0.824 |
+| 29 | udp://178.239.19.29:80/announce | UDP | 147.4 | 100% | 0.823 |
+| 30 | udp://185.216.179.62:25/announce | UDP | 152.0 | 100% | 0.820 |
+| 31 | udp://103.27.158.117:1914/announce | UDP | 163.9 | 100% | 0.816 |
+| 32 | udp://45.38.170.167:6969/announce | UDP | 170.5 | 100% | 0.813 |
+| 33 | udp://31.59.141.120:6969/announce | UDP | 186.5 | 100% | 0.812 |
+| 34 | udp://212.42.38.197:6969/announce | UDP | 184.8 | 100% | 0.811 |
+| 35 | udp://160.30.240.158:1337/announce | UDP | 182.1 | 100% | 0.810 |
+| 36 | http://140.235.237.23:6969/announce | HTTP | 168.8 | 100% | 0.809 |
+| 37 | udp://65.109.28.33:6969/announce | UDP | 217.4 | 100% | 0.798 |
+| 38 | udp://95.217.80.20:6969/announce | UDP | 214.1 | 100% | 0.798 |
+| 39 | udp://107.189.2.131:1337/announce | UDP | 152.5 | 100% | 0.798 |
+| 40 | udp://91.216.110.53:451/announce | UDP | 153.9 | 100% | 0.797 |
+| 41 | udp://60.172.236.18:6969/announce | UDP | 212.2 | 100% | 0.794 |
+| 42 | udp://143.20.154.228:42069/announce | UDP | 186.8 | 100% | 0.779 |
+| 43 | udp://65.109.28.17:6969/announce | UDP | 217.3 | 100% | 0.776 |
+| 44 | udp://95.217.80.22:6969/announce | UDP | 216.6 | 100% | 0.775 |
+| 45 | http://185.126.65.92:6969/announce | HTTP | 290.5 | 100% | 0.775 |
 <!-- LEADERBOARD:END -->
 
 ---
